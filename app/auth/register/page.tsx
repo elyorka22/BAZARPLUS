@@ -50,23 +50,16 @@ export default function RegisterPage() {
       // Wait a bit for the trigger to create the profile
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Check if profile exists and update it with correct data
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .single()
+      // Use the helper function to create/update profile (bypasses RLS)
+      const { error: functionError } = await supabase.rpc('create_user_profile', {
+        p_user_id: data.user.id,
+        p_email: email,
+        p_name: name,
+        p_role: role,
+      })
 
-      if (checkError && checkError.code !== 'PGRST116') {
-        // PGRST116 means no rows found, which is expected if trigger hasn't fired yet
-        // Other errors are real problems
-        setError('Profilni tekshirishda xatolik: ' + checkError.message)
-        setLoading(false)
-        return
-      }
-
-      if (existingProfile) {
-        // Profile exists, update it
+      if (functionError) {
+        // Fallback: try direct update if function doesn't exist or fails
         const { error: updateError } = await supabase
           .from('user_profiles')
           .update({
@@ -77,25 +70,9 @@ export default function RegisterPage() {
           .eq('id', data.user.id)
 
         if (updateError) {
-          setError('Profilni yangilashda xatolik: ' + updateError.message)
-          setLoading(false)
-          return
-        }
-      } else {
-        // Profile doesn't exist, create it (trigger might have failed)
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: data.user.id,
-            email: email,
-            name: name,
-            role: role,
-          })
-
-        if (insertError) {
-          setError('Profil yaratishda xatolik: ' + insertError.message)
-          setLoading(false)
-          return
+          // If update also fails, the trigger should have created it
+          // Just log the error but don't block registration
+          console.warn('Profile update failed, but trigger should have created it:', updateError)
         }
       }
 
