@@ -58,7 +58,8 @@ export function ProductsManagementTab() {
     try {
       const supabase = createClient()
       
-      const { data: productsData } = await supabase
+      // Загрузить все товары (включая неактивные) для админа
+      const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select(`
           *,
@@ -68,16 +69,21 @@ export function ProductsManagementTab() {
         `)
         .order('created_at', { ascending: false })
 
-      if (productsData) {
+      if (productsError) {
+        console.error('Error loading products:', productsError)
+        alert('Ошибка загрузки товаров: ' + productsError.message)
+      } else if (productsData) {
         setProducts(productsData as Product[])
         setFilteredProducts(productsData as Product[])
       }
 
-      const { data: storesData } = await supabase
+      const { data: storesData, error: storesError } = await supabase
         .from('stores')
         .select('id, name')
 
-      if (storesData) {
+      if (storesError) {
+        console.error('Error loading stores:', storesError)
+      } else if (storesData) {
         setStores(storesData)
       }
     } catch (error) {
