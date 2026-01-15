@@ -10,22 +10,25 @@
 -- ============================================
 
 -- ШАГ 1: Создать или обновить профиль пользователя с ролью 'admin'
+-- ВАЖНО: Роль хранится в таблице user_profiles, а НЕ в auth.users!
 INSERT INTO public.user_profiles (id, email, name, role)
 SELECT 
-  id,                              -- UUID пользователя
-  email,                           -- Email пользователя
+  u.id,                              -- UUID пользователя
+  u.email,                           -- Email пользователя
   COALESCE(
-    (SELECT name FROM public.user_profiles WHERE id = auth.users.id),
-    'Admin User'                    -- Имя по умолчанию, если не указано
+    up.name,                         -- Использовать существующее имя
+    u.raw_user_meta_data->>'name',   -- Или имя из метаданных
+    'Admin User'                     -- Или имя по умолчанию
   ) as name,
-  'admin' as role                  -- Установить роль 'admin'
-FROM auth.users
-WHERE email = 'user@example.com'   -- ⚠️ ЗАМЕНИТЕ НА EMAIL ПОЛЬЗОВАТЕЛЯ
-LIMIT 1
+  'admin' as role                   -- Установить роль 'admin'
+FROM auth.users u
+LEFT JOIN public.user_profiles up ON u.id = up.id
+WHERE u.email = 'user@example.com'   -- ⚠️ ЗАМЕНИТЕ НА EMAIL ПОЛЬЗОВАТЕЛЯ
 ON CONFLICT (id) 
 DO UPDATE SET 
-  role = 'admin',                  -- Обновить роль на 'admin'
+  role = 'admin',                   -- Обновить роль на 'admin'
   email = EXCLUDED.email,
+  name = COALESCE(EXCLUDED.name, user_profiles.name),
   updated_at = NOW();
 
 -- ШАГ 2: Подтвердить email (чтобы можно было войти)
