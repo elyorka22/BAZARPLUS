@@ -48,20 +48,41 @@ export default function RegisterPage() {
 
     if (data.user) {
       // Wait a bit for the trigger to create the profile
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Update the profile with correct data (trigger might have created it with defaults)
-      const { error: profileError } = await supabase
+      // Check if profile exists and update it with correct data
+      const { data: existingProfile, error: checkError } = await supabase
         .from('user_profiles')
-        .update({
-          name: name,
-          role: role,
-          email: email,
-        })
+        .select('id')
         .eq('id', data.user.id)
+        .single()
 
-      if (profileError) {
-        // If update fails, try to insert (in case trigger didn't fire)
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116 means no rows found, which is expected if trigger hasn't fired yet
+        // Other errors are real problems
+        setError('Profilni tekshirishda xatolik: ' + checkError.message)
+        setLoading(false)
+        return
+      }
+
+      if (existingProfile) {
+        // Profile exists, update it
+        const { error: updateError } = await supabase
+          .from('user_profiles')
+          .update({
+            name: name,
+            role: role,
+            email: email,
+          })
+          .eq('id', data.user.id)
+
+        if (updateError) {
+          setError('Profilni yangilashda xatolik: ' + updateError.message)
+          setLoading(false)
+          return
+        }
+      } else {
+        // Profile doesn't exist, create it (trigger might have failed)
         const { error: insertError } = await supabase
           .from('user_profiles')
           .insert({
