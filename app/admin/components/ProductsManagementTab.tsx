@@ -130,18 +130,35 @@ export function ProductsManagementTab() {
       }
 
       if (editingProduct) {
-        await supabase
+        const { error } = await supabase
           .from('products')
           .update(productData)
           .eq('id', editingProduct.id)
+
+        if (error) {
+          alert('Ошибка обновления товара: ' + error.message)
+          console.error('Update error:', error)
+          return
+        }
       } else {
-        await supabase.from('products').insert(productData)
+        const { data, error } = await supabase
+          .from('products')
+          .insert(productData)
+          .select()
+
+        if (error) {
+          alert('Ошибка создания товара: ' + error.message)
+          console.error('Insert error:', error)
+          return
+        }
       }
       
       setShowForm(false)
       loadData()
+      alert('Товар успешно сохранен!')
     } catch (error) {
-      alert('Ошибка сохранения товара')
+      console.error('Error saving product:', error)
+      alert('Ошибка сохранения товара: ' + (error instanceof Error ? error.message : 'Неизвестная ошибка'))
     }
   }
 
