@@ -388,8 +388,12 @@ export function ProductsManagementTab() {
                 </label>
               </div>
               <div className="flex gap-3">
-                <button type="submit" className="flex-1 bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-2 rounded-lg font-semibold hover:opacity-90">
-                  Сохранить
+                <button 
+                  type="submit" 
+                  disabled={submitting || imageUploading}
+                  className="flex-1 bg-gradient-to-r from-primary-500 to-secondary-500 text-white py-2 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? 'Сохранение...' : imageUploading ? 'Загрузка изображения...' : 'Сохранить'}
                 </button>
                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300">
                   Отмена
