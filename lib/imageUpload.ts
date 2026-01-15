@@ -31,6 +31,17 @@ export async function uploadImage(
       .from('images')
       .getPublicUrl(filePath)
 
+    console.log('Image uploaded successfully:', {
+      filePath,
+      publicUrl,
+      fullPath: `images/${filePath}`
+    })
+
+    if (!publicUrl) {
+      console.error('Failed to get public URL for uploaded image')
+      return null
+    }
+
     return publicUrl
   } catch (error) {
     console.error('Error uploading image:', error)
