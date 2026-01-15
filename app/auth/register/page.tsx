@@ -27,9 +27,17 @@ export default function RegisterPage() {
     }
 
     const supabase = createClient()
+    
+    // Sign up with metadata so the trigger can create the profile
     const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          name: name,
+          role: role,
+        }
+      }
     })
 
     if (authError) {
@@ -39,19 +47,35 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
+      // Wait a bit for the trigger to create the profile
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Update the profile with correct data (trigger might have created it with defaults)
       const { error: profileError } = await supabase
         .from('user_profiles')
-        .insert({
-          id: data.user.id,
-          email: email,
+        .update({
           name: name,
           role: role,
+          email: email,
         })
+        .eq('id', data.user.id)
 
       if (profileError) {
-        setError('Ошибка создания профиля')
-        setLoading(false)
-        return
+        // If update fails, try to insert (in case trigger didn't fire)
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: data.user.id,
+            email: email,
+            name: name,
+            role: role,
+          })
+
+        if (insertError) {
+          setError('Profil yaratishda xatolik: ' + insertError.message)
+          setLoading(false)
+          return
+        }
       }
 
       if (role === 'store') {
