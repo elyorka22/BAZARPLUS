@@ -23,24 +23,38 @@ export default async function Home() {
     }
 
     try {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
         .select('role')
         .eq('id', user.id)
         .single()
 
-      const role = profile?.role || 'client'
+      // Логирование для отладки (можно убрать в продакшене)
+      console.log('Profile data:', profile)
+      console.log('Profile error:', profileError)
+      console.log('User ID:', user.id)
 
-      if (role === 'client') {
+      if (profileError) {
+        console.error('Error fetching profile:', profileError)
+        // Если профиль не найден, попробуем создать его с ролью client
         redirect('/client')
+        return
+      }
+
+      const role = profile?.role || 'client'
+      console.log('User role:', role)
+
+      if (role === 'admin') {
+        redirect('/admin')
       } else if (role === 'store') {
         redirect('/store')
-      } else if (role === 'admin') {
-        redirect('/admin')
+      } else if (role === 'client') {
+        redirect('/client')
       } else {
         redirect('/client')
       }
     } catch (profileError) {
+      console.error('Exception fetching profile:', profileError)
       // If profile fetch fails, redirect to client page
       redirect('/client')
     }

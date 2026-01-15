@@ -67,12 +67,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
         .eq('id', userId)
         .single()
 
+      // Логирование для отладки
+      console.log('Fetching role for user:', userId)
+      console.log('Profile data:', data)
+      console.log('Profile error:', error)
+
       if (error || !data) {
+        console.warn('Profile not found or error, defaulting to client role')
         setRole('client')
       } else {
+        console.log('User role set to:', data.role)
         setRole(data.role as UserRole)
       }
     } catch (error) {
+      console.error('Exception fetching role:', error)
       setRole('client')
     } finally {
       setLoading(false)
