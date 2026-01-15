@@ -27,20 +27,28 @@ const mainKeyboard = Markup.keyboard([
 // Start command
 bot.start(async (ctx) => {
   try {
+    console.log('Start command received from user:', ctx.from?.id, ctx.from?.username)
+    
     // Get welcome message from database
-    const { data: welcomeData } = await supabase
+    const { data: welcomeData, error: welcomeError } = await supabase
       .from('bot_settings')
       .select('value')
       .eq('key', 'welcome_message')
       .single()
 
+    console.log('Welcome data from DB:', welcomeData)
+    console.log('Welcome error:', welcomeError)
+
     const welcomeMessage = welcomeData?.value || 
       'Assalomu alaykum! BazarPlus do\'koniga xush kelibsiz! 🛒\n\n' +
       'Quyidagi tugmalardan birini tanlang:'
 
+    console.log('Sending welcome message:', welcomeMessage)
     await ctx.reply(welcomeMessage, mainKeyboard)
+    console.log('Welcome message sent successfully')
   } catch (error) {
     console.error('Error in start command:', error)
+    console.error('Error details:', JSON.stringify(error, null, 2))
     await ctx.reply(
       'Assalomu alaykum! BazarPlus do\'koniga xush kelibsiz! 🛒\n\n' +
       'Quyidagi tugmalardan birini tanlang:',
@@ -148,9 +156,19 @@ bot.catch((err, ctx) => {
 // Start bot
 if (process.env.TELEGRAM_BOT_TOKEN) {
   bot.launch()
-  console.log('Telegram bot started!')
+    .then(() => {
+      console.log('✅ Telegram bot started successfully!')
+      console.log('Bot token:', process.env.TELEGRAM_BOT_TOKEN?.substring(0, 10) + '...')
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      console.log('Service role key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set')
+    })
+    .catch((error) => {
+      console.error('❌ Error starting bot:', error)
+      process.exit(1)
+    })
 } else {
-  console.error('TELEGRAM_BOT_TOKEN is not set!')
+  console.error('❌ TELEGRAM_BOT_TOKEN is not set!')
+  process.exit(1)
 }
 
 // Graceful stop
