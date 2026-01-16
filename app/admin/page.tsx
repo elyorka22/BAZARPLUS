@@ -9,11 +9,11 @@ import { Shield, Settings, Package, MessageSquare, Store, BarChart3, ShoppingBag
 import { SiteSettingsTab } from './components/SiteSettingsTab'
 import { ProductsManagementTab } from './components/ProductsManagementTab'
 import { BotManagementTab } from './components/BotManagementTab'
-import { CreateStoreTab } from './components/CreateStoreTab'
+import { StoreSettingsTab } from './components/StoreSettingsTab'
 import { AdminStatisticsTab } from './components/AdminStatisticsTab'
 import { AdminOrdersTab } from './components/AdminOrdersTab'
 
-type TabType = 'statistics' | 'settings' | 'products' | 'bot' | 'create-store' | 'orders'
+type TabType = 'statistics' | 'settings' | 'products' | 'bot' | 'store-settings' | 'orders'
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('statistics')
@@ -136,15 +136,15 @@ export default function AdminPage() {
             Botni boshqarish
           </button>
           <button
-            onClick={() => setActiveTab('create-store')}
+            onClick={() => setActiveTab('store-settings')}
             className={`px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
-              activeTab === 'create-store'
+              activeTab === 'store-settings'
                 ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-gray-50 shadow'
             }`}
           >
             <Store className="w-5 h-5" />
-            Do'kon yaratish
+            Do'kon sozlamalari
           </button>
           <button
             onClick={() => setActiveTab('orders')}
@@ -164,7 +164,7 @@ export default function AdminPage() {
           {activeTab === 'settings' && <SiteSettingsTab />}
           {activeTab === 'products' && <ProductsManagementTab />}
           {activeTab === 'bot' && <BotManagementTab />}
-          {activeTab === 'create-store' && <CreateStoreTab />}
+          {activeTab === 'store-settings' && <StoreSettingsTab />}
           {activeTab === 'orders' && <AdminOrdersTab />}
         </div>
       </div>
