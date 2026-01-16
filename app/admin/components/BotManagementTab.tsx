@@ -51,14 +51,24 @@ export function BotManagementTab() {
         setWelcomeMessage(welcomeData.value)
       }
 
-      // Load bot buttons
-      const { data: buttonsData } = await supabase
+      // Load bot buttons (only active buttons without store_id for main bot)
+      const { data: buttonsData, error: buttonsError } = await supabase
         .from('bot_buttons')
         .select('*')
+        .is('store_id', null) // Только кнопки главного бота (без store_id)
         .order('order_index', { ascending: true })
+
+      console.log('Bot buttons data:', buttonsData)
+      console.log('Bot buttons error:', buttonsError)
+
+      if (buttonsError) {
+        console.error('Error loading bot buttons:', buttonsError)
+      }
 
       if (buttonsData) {
         setBotButtons(buttonsData)
+      } else {
+        setBotButtons([])
       }
     } catch (error) {
       console.error('Error loading data:', error)
