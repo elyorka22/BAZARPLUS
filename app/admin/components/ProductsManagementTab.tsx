@@ -14,6 +14,11 @@ interface Product {
   image_url: string | null
   store_id: string
   is_active: boolean
+  package_type: string | null
+  min_order: number | null
+  max_order: number | null
+  badge: string | null
+  sale_type: string
   stores: {
     name: string
   }
@@ -39,6 +44,11 @@ export function ProductsManagementTab() {
     store_id: '',
     category_id: '',
     is_active: true,
+    package_type: '',
+    min_order: '',
+    max_order: '',
+    badge: '',
+    sale_type: 'by_piece',
   })
 
   useEffect(() => {
@@ -122,6 +132,11 @@ export function ProductsManagementTab() {
         store_id: product.store_id,
         category_id: (product as any).category_id || '',
         is_active: product.is_active,
+        package_type: product.package_type || '',
+        min_order: product.min_order?.toString() || '1',
+        max_order: product.max_order?.toString() || '',
+        badge: product.badge || '',
+        sale_type: product.sale_type || 'by_piece',
       })
     } else {
       setEditingProduct(null)
@@ -134,6 +149,11 @@ export function ProductsManagementTab() {
         store_id: stores[0]?.id || '',
         category_id: '',
         is_active: true,
+        package_type: '',
+        min_order: '1',
+        max_order: '',
+        badge: '',
+        sale_type: 'by_piece',
       })
     }
     setShowForm(true)
@@ -161,6 +181,11 @@ export function ProductsManagementTab() {
         store_id: formData.store_id,
         category_id: formData.category_id || null,
         is_active: formData.is_active,
+        package_type: formData.package_type || null,
+        min_order: formData.min_order ? parseFloat(formData.min_order) : 1,
+        max_order: formData.max_order ? parseFloat(formData.max_order) : null,
+        badge: formData.badge || null,
+        sale_type: formData.sale_type,
       }
 
       console.log('Saving product with data:', productData)
@@ -219,6 +244,29 @@ export function ProductsManagementTab() {
       loadData()
     } catch (error) {
       alert('Ошибка удаления товара')
+    }
+  }
+
+  async function updateProductStatus(id: string, isActive: boolean) {
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('products')
+        .update({ is_active: isActive })
+        .eq('id', id)
+
+      if (error) {
+        alert('Ошибка обновления статуса: ' + error.message)
+        loadData() // Перезагрузить данные в случае ошибки
+        return
+      }
+
+      // Обновить локальное состояние
+      setProducts(products.map(p => p.id === id ? { ...p, is_active: isActive } : p))
+      setFilteredProducts(filteredProducts.map(p => p.id === id ? { ...p, is_active: isActive } : p))
+    } catch (error) {
+      alert('Ошибка обновления статуса')
+      loadData()
     }
   }
 

@@ -16,6 +16,11 @@ interface Product {
   stock: number
   category_id: string | null
   is_active: boolean
+  package_type: string | null
+  min_order: number | null
+  max_order: number | null
+  badge: string | null
+  sale_type: string
 }
 
 export default function StorePage() {
@@ -32,6 +37,11 @@ export default function StorePage() {
     stock: '',
     image_url: '',
     category_id: '',
+    package_type: '',
+    min_order: '1',
+    max_order: '',
+    badge: '',
+    sale_type: 'by_piece',
   })
 
   useEffect(() => {
@@ -112,6 +122,11 @@ export default function StorePage() {
         stock: product.stock.toString(),
         image_url: product.image_url || '',
         category_id: product.category_id || '',
+        package_type: product.package_type || '',
+        min_order: product.min_order?.toString() || '1',
+        max_order: product.max_order?.toString() || '',
+        badge: product.badge || '',
+        sale_type: product.sale_type || 'by_piece',
       })
     } else {
       setEditingProduct(null)
@@ -122,6 +137,11 @@ export default function StorePage() {
         stock: '',
         image_url: '',
         category_id: '',
+        package_type: '',
+        min_order: '1',
+        max_order: '',
+        badge: '',
+        sale_type: 'by_piece',
       })
     }
     setShowForm(true)
@@ -148,6 +168,11 @@ export default function StorePage() {
       stock: parseInt(formData.stock),
       image_url: formData.image_url || null,
       category_id: formData.category_id || null,
+      package_type: formData.package_type || null,
+      min_order: formData.min_order ? parseFloat(formData.min_order) : 1,
+      max_order: formData.max_order ? parseFloat(formData.max_order) : null,
+      badge: formData.badge || null,
+      sale_type: formData.sale_type,
       store_id: store.id,
       is_active: true,
     }
