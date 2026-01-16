@@ -210,36 +210,38 @@ export default function StorePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent">
             Mahsulotlarni boshqarish
           </h1>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <Link
               href="/store/orders"
-              className="bg-secondary-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
+              className="bg-secondary-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 text-sm sm:text-base"
             >
-              <ShoppingBag className="w-5 h-5" />
-              Buyurtmalar
+              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Buyurtmalar</span>
+              <span className="sm:hidden">Buyurtma</span>
             </Link>
             <button
               onClick={() => openForm()}
-              className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
+              className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 text-sm sm:text-base"
             >
-              <Plus className="w-5 h-5" />
-              Mahsulot qo'shish
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Mahsulot qo'shish</span>
+              <span className="sm:hidden">Qo'shish</span>
             </button>
           </div>
         </div>
 
         {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold mb-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="bg-white rounded-xl shadow-xl p-4 sm:p-6 max-w-md w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
                 {editingProduct ? 'Tahrirlash' : 'Qo\'shish'} mahsulot
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Название
