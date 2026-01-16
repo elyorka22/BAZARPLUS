@@ -29,6 +29,8 @@ bot.start(async (ctx) => {
   try {
     console.log('Start command received from user:', ctx.from?.id, ctx.from?.username)
     
+    const chatId = ctx.chat.id.toString()
+    
     // Get welcome message from database
     const { data: welcomeData, error: welcomeError } = await supabase
       .from('bot_settings')
@@ -45,6 +47,15 @@ bot.start(async (ctx) => {
 
     console.log('Sending welcome message:', welcomeMessage)
     await ctx.reply(welcomeMessage, mainKeyboard)
+    
+    // Отправить Chat ID пользователю (для магазинов)
+    await ctx.reply(
+      `📱 Sizning Chat ID: \`${chatId}\`\n\n` +
+      `Agar siz do'kon egasiz bo'lsangiz, bu Chat ID ni do'kon sozlamalariga kiriting. ` +
+      `Keyin siz yangi buyurtmalar haqida xabarnoma olasiz.`,
+      { parse_mode: 'Markdown' }
+    )
+    
     console.log('Welcome message sent successfully')
   } catch (error) {
     console.error('Error in start command:', error)
