@@ -5,16 +5,17 @@ import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/Navbar'
 import { useUser } from '@/app/providers'
 import { createClient } from '@/lib/supabase/client'
-import { Shield, Settings, Package, MessageSquare, Store } from 'lucide-react'
+import { Shield, Settings, Package, MessageSquare, Store, BarChart3 } from 'lucide-react'
 import { SiteSettingsTab } from './components/SiteSettingsTab'
 import { ProductsManagementTab } from './components/ProductsManagementTab'
 import { BotManagementTab } from './components/BotManagementTab'
 import { CreateStoreTab } from './components/CreateStoreTab'
+import { AdminStatisticsTab } from './components/AdminStatisticsTab'
 
-type TabType = 'settings' | 'products' | 'bot' | 'create-store'
+type TabType = 'statistics' | 'settings' | 'products' | 'bot' | 'create-store'
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('settings')
+  const [activeTab, setActiveTab] = useState<TabType>('statistics')
   const { user, role, loading } = useUser()
   const router = useRouter()
 
@@ -90,6 +91,17 @@ export default function AdminPage() {
 
         <div className="flex flex-wrap gap-4 mb-6">
           <button
+            onClick={() => setActiveTab('statistics')}
+            className={`px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
+              activeTab === 'statistics'
+                ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg'
+                : 'bg-white text-gray-700 hover:bg-gray-50 shadow'
+            }`}
+          >
+            <BarChart3 className="w-5 h-5" />
+            Statistika
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
               activeTab === 'settings'
@@ -136,6 +148,7 @@ export default function AdminPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6">
+          {activeTab === 'statistics' && <AdminStatisticsTab />}
           {activeTab === 'settings' && <SiteSettingsTab />}
           {activeTab === 'products' && <ProductsManagementTab />}
           {activeTab === 'bot' && <BotManagementTab />}
