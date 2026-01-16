@@ -19,10 +19,11 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 const bot = new Telegraf(TELEGRAM_BOT_TOKEN)
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-// Main menu keyboard with reply buttons (not persistent, can be hidden)
+// Main menu keyboard with reply buttons (can be hidden by user)
 const mainKeyboard = Markup.keyboard([
-  ['🌐 Sayt haqida', '🏪 Sotuvchi bo\'lish']
-]).resize()
+  ['🌐 Sayt haqida', '🏪 Sotuvchi bo\'lish'],
+  ['❌ Yopish'] // Кнопка для скрытия клавиатуры
+]).resize().oneTime() // oneTime - клавиатура исчезнет после одного нажатия
 
 // Inline keyboard buttons (disappear after clicking)
 const inlineKeyboard = Markup.inlineKeyboard([
@@ -64,6 +65,12 @@ bot.start(async (ctx) => {
       { parse_mode: 'Markdown' }
     )
     
+    // Показать reply keyboard
+    await ctx.reply(
+      '📱 Tugmalarni ko\'rish uchun /menu buyrug\'ini yuboring yoki quyidagi tugmalardan foydalaning:',
+      mainKeyboard
+    )
+    
     console.log('Welcome message sent successfully')
   } catch (error) {
     console.error('Error in start command:', error)
@@ -73,7 +80,16 @@ bot.start(async (ctx) => {
       'Quyidagi tugmalardan birini tanlang:',
       inlineKeyboard
     )
+    await ctx.reply('📱 Tugmalarni ko\'rish uchun /menu buyrug\'ini yuboring:', mainKeyboard)
   }
+})
+
+// Menu command - показать reply keyboard
+bot.command('menu', async (ctx) => {
+  await ctx.reply(
+    'Quyidagi tugmalardan birini tanlang:',
+    mainKeyboard
+  )
 })
 
 // Handle "Sayt haqida" button (inline callback)
@@ -127,13 +143,24 @@ bot.hears('🌐 Sayt haqida', async (ctx) => {
       'Sayt: ' + (process.env.NEXT_PUBLIC_SITE_URL || 'https://bazarplus.uz')
 
     await ctx.reply(aboutText, inlineKeyboard)
+    // Показать клавиатуру снова после ответа
+    await ctx.reply('Yana biror narsa kerakmi?', mainKeyboard)
   } catch (error) {
     console.error('Error getting site info:', error)
     await ctx.reply(
       'BazarPlus - bu onlayn do\'kon platformasi. Batafsil ma\'lumot uchun saytimizga tashrif buyuring.',
       inlineKeyboard
     )
+    await ctx.reply('Yana biror narsa kerakmi?', mainKeyboard)
   }
+})
+
+// Handle "Yopish" (Hide) button - скрыть клавиатуру
+bot.hears('❌ Yopish', async (ctx) => {
+  await ctx.reply(
+    'Klaviatura yopildi. Qayta ochish uchun /menu buyrug\'ini yuboring.',
+    Markup.removeKeyboard()
+  )
 })
 
 // Handle "Sotuvchi bo'lish" button (inline callback)
@@ -235,21 +262,30 @@ bot.hears('🏪 Sotuvchi bo\'lish', async (ctx) => {
         reply_markup: inlineKeyboard.reply_markup
       })
     }
+    // Показать клавиатуру снова после ответа
+    await ctx.reply('Yana biror narsa kerakmi?', mainKeyboard)
   } catch (error) {
     console.error('Error getting seller page:', error)
     await ctx.reply(
       'Sotuvchi bo\'lish uchun saytimizga tashrif buyuring va ro\'yxatdan o\'ting.',
       inlineKeyboard
     )
+    await ctx.reply('Yana biror narsa kerakmi?', mainKeyboard)
   }
 })
 
 // Handle any other text messages
 bot.on('text', async (ctx) => {
+  // Игнорируем команды
+  if (ctx.message.text?.startsWith('/')) {
+    return
+  }
+  
   await ctx.reply(
-    'Iltimos, quyidagi tugmalardan birini tanlang:',
+    'Iltimos, quyidagi tugmalardan birini tanlang yoki /menu buyrug\'ini yuboring:',
     inlineKeyboard
   )
+  await ctx.reply('Tugmalarni ko\'rish uchun:', mainKeyboard)
 })
 
 // Error handling
