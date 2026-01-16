@@ -3,11 +3,14 @@ module.exports = {
     {
       name: 'frontend',
       script: 'npm',
-      args: 'start',
+      args: 'run start:next',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
-      }
+        PORT: process.env.PORT || 3000
+      },
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '500M'
     },
     {
       name: 'bot',
@@ -18,8 +21,10 @@ module.exports = {
       },
       autorestart: true,
       watch: false,
-      max_memory_restart: '500M'
+      max_memory_restart: '500M',
+      error_file: './logs/bot-error.log',
+      out_file: './logs/bot-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
     }
   ]
 }
-
