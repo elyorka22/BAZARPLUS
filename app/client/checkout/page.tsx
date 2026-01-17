@@ -15,7 +15,7 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [courier_notes, setCourierNotes] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
@@ -107,6 +107,7 @@ export default function CheckoutPage() {
         status: 'pending',
         delivery_address: address,
         phone: phone,
+        courier_notes: courier_notes || null,
       }
 
       if (user) {
@@ -114,13 +115,12 @@ export default function CheckoutPage() {
         orderData.user_id = user.id
       } else {
         // Guest user
-        if (!name || !email) {
+        if (!name) {
           alert('Iltimos, barcha maydonlarni to\'ldiring')
           setSubmitting(false)
           return
         }
         orderData.guest_name = name
-        orderData.guest_email = email
       }
 
       const { data: order, error: orderError } = await supabase
@@ -241,35 +241,19 @@ export default function CheckoutPage() {
             
             <div className="space-y-4">
               {isGuest && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ism <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Ismingiz"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="your@email.com"
-                />
-              </div>
-                </>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ism <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Ismingiz"
+                  />
+                </div>
               )}
 
               <div>
@@ -297,6 +281,19 @@ export default function CheckoutPage() {
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="+998 (90) 123-45-67"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kurier uchun izoh (orientir)
+                </label>
+                <textarea
+                  value={courier_notes}
+                  onChange={(e) => setCourierNotes(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Masalan: 5-qavat, 12-xonadon, qizil eshik, yoki boshqa orientir..."
                 />
               </div>
             </div>
